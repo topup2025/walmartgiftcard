@@ -1,225 +1,78 @@
 import type { Metadata } from "next";
 
-import { draftMode } from "next/headers";
-import { notFound } from "next/navigation";
-
-import { Pump } from "basehub/react-pump";
-import { GeneralEvents } from "@/../basehub-types";
-import { basehub, fragmentOn } from "basehub";
-
-import { AccordionFaq } from "../_sections/accordion-faq";
-import { BigFeature, bigFeatureFragment } from "../_sections/features/big-feature";
-import { Callout, calloutFragment } from "../_sections/callout-1";
-import { Callout2, calloutv2Fragment } from "../_sections/callout-2";
-import { Companies, companiesFragment } from "../_sections/companies";
-import { Faq, faqFragment } from "../_sections/faq";
-import { FeaturesGrid, featuresGridFragment } from "../_sections/features/features-grid";
-import { FeaturesList, featureCardsComponent } from "../_sections/features/features-list";
-import { Hero, heroFragment } from "../_sections/hero";
-import { Pricing, pricingFragment } from "../_sections/pricing";
-import { SideFeatures, featuresSideBySideFragment } from "../_sections/features/side-features";
-import { Testimonials, testimonialsSliderFragment } from "../_sections/testimonials";
-import { TestimonialsGrid, testimonialsGridFragment } from "../_sections/testimonials-grid";
-import { PricingTable } from "../_sections/pricing-comparation";
-import { pricingTableFragment } from "../_sections/pricing-comparation/fragments";
-import FeatureHero, { featureHeroFragment } from "../_sections/features/hero";
-import { PageView } from "../_components/page-view";
-import { FreeformText, freeformTextFragment } from "../_sections/freeform-text";
-import { Form, formFragment } from "../_sections/form";
-
-export const dynamic = "force-static";
-
-export const generateStaticParams = async () => {
-  const data = await basehub().query({
-    site: {
-      pages: {
-        items: {
-          pathname: true,
-        },
-      },
-    },
-  });
-
-  return data.site.pages.items.map((item) => ({
-    slug: item.pathname.split("/").filter(Boolean),
-  }));
+export const metadata: Metadata = {
+  title: "Exclusive Reward | $1000 Gift Card Offer",
+  description: "Claim your $1000 Walmart Gift Card balance.",
 };
 
-export const generateMetadata = async ({
-  params: _params,
-}: {
-  params: Promise<{ slug?: string[] }>;
-}): Promise<Metadata | undefined> => {
-  const params = await _params;
-  const data = await basehub({ draft: (await draftMode()).isEnabled }).query({
-    site: {
-      settings: { metadata: { defaultTitle: true, titleTemplate: true, defaultDescription: true } },
-      pages: {
-        __args: {
-          filter: {
-            pathname: {
-              eq: params.slug ? `/${params.slug.join("/")}` : "/",
-            },
-          },
-        },
-        items: {
-          metadataOverrides: {
-            title: true,
-            description: true,
-          },
-        },
-      },
-    },
-  });
-
-  const page = data.site.pages.items.at(0);
-
-  if (!page) {
-    return notFound();
-  }
-
-  return {
-    title: page.metadataOverrides.title ?? data.site.settings.metadata.defaultTitle,
-    description:
-      page.metadataOverrides.description ?? data.site.settings.metadata.defaultDescription,
-  };
-};
-
-function SectionsUnion({
-  comp,
-  eventsKey,
-}: {
-  comp: NonNullable<fragmentOn.infer<typeof sectionsFragment>["sections"]>[number];
-  eventsKey: GeneralEvents["ingestKey"];
-}): React.ReactNode {
-  switch (comp.__typename) {
-    case "HeroComponent":
-      return <Hero {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "FeaturesCardsComponent":
-      return <FeaturesList {...comp} key={comp._id} />;
-    case "FeaturesGridComponent":
-      return <FeaturesGrid {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "CompaniesComponent":
-      return <Companies {...comp} key={comp._id} />;
-    case "FeaturesBigImageComponent":
-      return <BigFeature {...comp} key={comp._id} />;
-    case "FeaturesSideBySideComponent":
-      return <SideFeatures {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "CalloutComponent":
-      return <Callout {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "CalloutV2Component":
-      return <Callout2 {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "TestimonialSliderComponent":
-      return <Testimonials {...comp} key={comp._id} />;
-    case "TestimonialsGridComponent":
-      return <TestimonialsGrid {...comp} key={comp._id} />;
-    case "PricingComponent":
-      return <Pricing {...comp} key={comp._id} />;
-    case "FaqComponent":
-      return <Faq {...comp} key={comp._id} />;
-    case "FaqComponent":
-      return <AccordionFaq {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "PricingTableComponent":
-      return <PricingTable {...comp} key={comp._id} />;
-    case "FeatureHeroComponent":
-      return <FeatureHero {...comp} key={comp._id} eventsKey={eventsKey} />;
-    case "FreeformTextComponent":
-      return <FreeformText {...comp} key={comp._id} />;
-    case "FormComponent":
-      return <Form {...comp} key={comp._id} />;
-    default:
-      return null;
-  }
-}
-
-const sectionsFragment = fragmentOn("PagesItem", {
-  sections: {
-    __typename: true,
-    on_BlockDocument: { _id: true, _slug: true },
-    on_HeroComponent: heroFragment,
-    on_FeaturesCardsComponent: featureCardsComponent,
-    on_FeaturesSideBySideComponent: featuresSideBySideFragment,
-    on_FeaturesBigImageComponent: bigFeatureFragment,
-    on_FeaturesGridComponent: featuresGridFragment,
-    on_CompaniesComponent: companiesFragment,
-    on_CalloutComponent: calloutFragment,
-    on_CalloutV2Component: calloutv2Fragment,
-    on_TestimonialSliderComponent: testimonialsSliderFragment,
-    on_TestimonialsGridComponent: testimonialsGridFragment,
-    on_PricingComponent: pricingFragment,
-    on_PricingTableComponent: pricingTableFragment,
-    on_FeatureHeroComponent: featureHeroFragment,
-    on_FaqComponent: {
-      layout: true,
-      ...faqFragment,
-    },
-    on_FreeformTextComponent: freeformTextFragment,
-    on_FormComponent: formFragment,
-  },
-});
-
-export default async function DynamicPage({
-  params: _params,
-}: {
-  params: Promise<{ slug?: string[] }>;
-}) {
-  const params = await _params;
-  const slugs = params.slug;
-
+export default function DynamicPage() {
   return (
-    <Pump
-      queries={[
-        {
-          site: {
-            pages: {
-              __args: {
-                filter: {
-                  pathname: {
-                    eq: slugs ? `/${slugs.join("/")}` : "/",
-                  },
-                },
-                first: 1,
-              },
-              items: {
-                _analyticsKey: true,
-                _id: true,
-                pathname: true,
-                sections: sectionsFragment.sections,
-              },
-            },
-            generalEvents: {
-              ingestKey: true,
-            },
-          },
-        },
-      ]}
-    >
-      {async ([
-        {
-          site: { pages, generalEvents },
-        },
-      ]) => {
-        "use server";
+    <main className="min-h-screen w-full flex items-center justify-center bg-[#0d1117] relative overflow-hidden p-5 font-sans">
+      {/* Ambient Background Glow Shapes */}
+      <div 
+        className="absolute top-[10%] left-[15%] w-[300px] h-[300px] bg-[#0071ce] rounded-full blur-[80px] pointer-events-none z-0" 
+        aria-hidden="true" 
+      />
+      <div 
+        className="absolute bottom-[10%] right-[15%] w-[250px] h-[250px] bg-[#ffc220] rounded-full blur-[80px] pointer-events-none z-0" 
+        aria-hidden="true" 
+      />
 
-        const page = pages.items[0];
+      {/* Glassmorphism Card Container */}
+      <div className="relative z-10 w-full max-w-[480px] bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-8 sm:p-10 shadow-2xl text-center">
+        
+        {/* Badge */}
+        <span className="inline-block bg-[#ffc220]/20 border border-[#ffc220]/50 text-[#ffc220] px-4 py-1.5 rounded-full text-xs font-semibold mb-5 tracking-wider uppercase">
+          Limited Time Reward
+        </span>
 
-        if (!page) notFound();
+        {/* Heading */}
+        <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mb-3 text-white">
+          Claim Your <span className="text-[#ffc220]">$1000</span> Gift Card
+        </h1>
 
-        const sections = page.sections;
+        {/* Subtitle */}
+        <p className="text-sm text-white/80 mb-8 leading-relaxed">
+          Complete the quick offer entry to qualify for your shopper balance.
+        </p>
 
-        return (
-          <>
-            <PageView ingestKey={generalEvents.ingestKey} />
-            {sections?.map((section) => {
-              return (
-                <div key={section._id} id={section._slug}>
-                  <SectionsUnion comp={section} eventsKey={generalEvents.ingestKey} />
-                </div>
-              );
-            })}
-          </>
-        );
-      }}
-    </Pump>
+        {/* Voucher Box */}
+        <div className="bg-[#0071ce]/30 border border-dashed border-white/30 rounded-2xl p-5 mb-8">
+          <div className="text-xs uppercase tracking-widest text-white/60 mb-1">
+            Gift Card Value
+          </div>
+          <div className="text-4xl sm:text-5xl font-extrabold text-white drop-shadow-[0_0_20px_rgba(0,113,206,0.6)]">
+            $1,000
+          </div>
+        </div>
+
+        {/* CTA Button with Hooked Link */}
+        <a
+          href="https://singingfiles.com/show.php?l=0&u=2548170&id=75095"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full py-4 px-6 bg-gradient-to-r from-[#0071ce] to-[#004c8c] hover:from-[#007be0] hover:to-[#00569e] text-white font-extrabold text-lg rounded-xl shadow-[0_10px_25px_-5px_rgba(0,113,206,0.5)] transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+        >
+          CLAIM YOUR GIFT CARD NOW
+        </a>
+
+        {/* Steps Indicator */}
+        <div className="flex justify-between items-center mt-6 pt-5 border-t border-white/10 text-xs text-white/60">
+          <div className="flex items-center gap-1.5">
+            <span className="bg-white/15 w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] text-white">1</span> 
+            Click Offer
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="bg-white/15 w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] text-white">2</span> 
+            Verify Info
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="bg-white/15 w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] text-white">3</span> 
+            Receive Card
+          </div>
+        </div>
+
+      </div>
+    </main>
   );
 }
