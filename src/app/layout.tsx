@@ -1,10 +1,4 @@
-import "@/app/globals.css";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Exclusive Reward | $1000 Gift Card Offer",
-  description: "Claim your $1000 Walmart Gift Card balance.",
-};
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -12,10 +6,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    
-      
+    <html lang="en">
+      <body className="m-0 p-0 bg-[#0d1117] antialiased">
         {children}
-      
-    
+      </body>
+    </html>
   );
 }
